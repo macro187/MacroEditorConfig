@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using MacroExceptions;
 using MacroGuards;
 
 namespace MacroEditorConfig
@@ -8,61 +10,67 @@ namespace MacroEditorConfig
     {
 
         readonly List<string> lines;
-        readonly List<EditorConfigSection> sections;
 
 
+        /// <summary>
+        /// Initialise a new empty editorconfig file
+        /// </summary>
+        ///
         public EditorConfigFile()
             : this(Enumerable.Empty<string>())
         {
         }
 
 
+        /// <summary>
+        /// Initialise a new editorconfig file containing the specified lines of text
+        /// </summary>
+        ///
+        /// <exception cref="TextFileParseException">
+        /// The specified <paramref name="lines"/> of text were not in valid editorconfig format
+        /// </exception>
+        ///
         public EditorConfigFile(IEnumerable<string> lines)
         {
             Guard.NotNull(lines, nameof(lines));
             this.lines = lines.ToList();
             Lines = this.lines;
-            sections = new List<EditorConfigSection>();
-            Sections = sections;
             Parse();
         }
 
 
         public IReadOnlyList<string> Lines { get; }
-        public IReadOnlyList<EditorConfigSection> Sections { get; }
+        public IReadOnlyList<EditorConfigSection> Sections { get; private set; }
+
+
+        /// <summary>
+        /// Edit the lines of text in the editorconfig file
+        /// </summary>
+        ///
+        /// <param name="editAction">
+        /// Action that modifies the lines of text in the file
+        /// </param>
+        ///
+        /// <remarks>
+        /// After <paramref name="editAction"/> is performed, the file is re-parsed and state updated
+        /// </remarks>
+        ///
+        /// <exception cref="TextFileParseException">
+        /// After <paramref name="editAction"/> was performed, the <paramref name="lines"/> of text were no longer in
+        /// valid editorconfig format
+        /// </exception>
+        ///
+        public void Edit(Action<IList<string>> editAction)
+        {
+            Guard.NotNull(editAction, nameof(editAction));
+            editAction(lines);
+            Parse();
+        }
 
 
         void Parse()
         {
-            sections.Clear();
-
-            var lines =
-                EditorConfigReader.Read(Lines)
-                    .Concat(new EditorConfigLine[] { null });
-
-            EditorConfigSectionHeaderLine currentHeader = null;
-            var currentLines = new List<EditorConfigLine>();
-            foreach (var line in lines)
-            {
-                EditorConfigSectionHeaderLine nextHeader;
-                if (line is EditorConfigSectionHeaderLine header)
-                {
-                    nextHeader = header;
-                }
-                else if (line == null)
-                {
-                    nextHeader = null;
-                }
-                else
-                {
-                    currentLines.Add(line);
-                    continue;
-                }
-
-                sections.Add(new EditorConfigSection(currentHeader, currentLines));
-                currentHeader = nextHeader;
-                currentLines.Clear();
-            }
+            Sections = EditorConfigReader.Read(Lines).ToList();
         }
 
     }
