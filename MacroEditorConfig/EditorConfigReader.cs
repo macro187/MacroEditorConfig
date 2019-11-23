@@ -16,18 +16,17 @@ namespace MacroEditorConfig
 
         static IEnumerable<EditorConfigSection> ReadImpl(IEnumerable<string> lines)
         {
-            EditorConfigSectionHeaderLine currentHeader = null;
             var currentLines = new List<EditorConfigLine>();
             foreach (var line in ReadLines(lines))
             {
                 EditorConfigSectionHeaderLine nextHeader;
-                if (line is EditorConfigSectionHeaderLine header)
-                {
-                    nextHeader = header;
-                }
-                else if (line == null)
+                if (line == null)
                 {
                     nextHeader = null;
+                }
+                else if (line is EditorConfigSectionHeaderLine header)
+                {
+                    nextHeader = header;
                 }
                 else
                 {
@@ -35,9 +34,12 @@ namespace MacroEditorConfig
                     continue;
                 }
 
-                yield return new EditorConfigSection(currentHeader, currentLines);
-                currentHeader = nextHeader;
+                yield return new EditorConfigSection(currentLines);
                 currentLines.Clear();
+                if (nextHeader != null)
+                {
+                    currentLines.Add(nextHeader);
+                }
             }
         }
 

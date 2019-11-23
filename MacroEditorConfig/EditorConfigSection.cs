@@ -7,20 +7,26 @@ namespace MacroEditorConfig
     public class EditorConfigSection
     {
 
-        public EditorConfigSection(
-            EditorConfigSectionHeaderLine headerLine,
-            IEnumerable<EditorConfigLine> lines
-        )
+        public EditorConfigSection(IEnumerable<EditorConfigLine> lines)
         {
             Guard.NotNull(lines, nameof(lines));
-            HeaderLine = headerLine;
             Lines = lines.ToList();
         }
 
 
-        public EditorConfigSectionHeaderLine HeaderLine { get; }
         public IReadOnlyList<EditorConfigLine> Lines { get; }
-        public bool IsPreamble => HeaderLine == null;
+
+
+        public EditorConfigSectionHeaderLine Header =>
+            Lines.OfType<EditorConfigSectionHeaderLine>().SingleOrDefault();
+
+
+        public IEnumerable<EditorConfigDeclarationLine> Declarations =>
+            Lines.OfType<EditorConfigDeclarationLine>();
+
+
+        public bool IsPreamble => Header == null;
+
 
     }
 }

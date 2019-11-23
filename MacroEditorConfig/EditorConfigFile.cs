@@ -41,6 +41,7 @@ namespace MacroEditorConfig
 
         public IReadOnlyList<string> Lines { get; }
         public IReadOnlyList<EditorConfigSection> Sections { get; private set; }
+        public EditorConfigSection Preamble => Sections.Single(s => s.IsPreamble);
 
 
         /// <summary>

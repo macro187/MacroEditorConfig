@@ -67,37 +67,39 @@ namespace MacroEditorConfig.Tests
 
             section = file.Sections[1];
             Assert.IsFalse(section.IsPreamble);
-            Assert.AreEqual(3, section.Lines.Count);
-
-            Assert.IsNotNull(headerLine = section.HeaderLine);
-            Assert.AreEqual(6, headerLine.LineNumber);
-            Assert.AreEqual("a", headerLine.Name);
+            Assert.AreEqual(4, section.Lines.Count);
 
             line = section.Lines[0];
+            Assert.AreEqual(6, line.LineNumber);
+            Assert.IsNotNull(headerLine = line as EditorConfigSectionHeaderLine);
+            Assert.AreEqual("a", headerLine.Name);
+
+            line = section.Lines[1];
             Assert.AreEqual(7, line.LineNumber);
             Assert.IsNotNull(declarationLine = line as EditorConfigDeclarationLine);
             Assert.AreEqual("key_a1", declarationLine.Key);
             Assert.AreEqual("value_a1", declarationLine.Value);
 
-            line = section.Lines[1];
+            line = section.Lines[2];
             Assert.AreEqual(8, line.LineNumber);
             Assert.IsNotNull(declarationLine = line as EditorConfigDeclarationLine);
             Assert.AreEqual("key_a2", declarationLine.Key);
             Assert.AreEqual("value_a2", declarationLine.Value);
 
-            line = section.Lines[2];
+            line = section.Lines[3];
             Assert.AreEqual(9, line.LineNumber);
             Assert.IsNotNull(blankLine = line as EditorConfigBlankLine);
 
             section = file.Sections[2];
             Assert.IsFalse(section.IsPreamble);
-            Assert.AreEqual(1, section.Lines.Count);
-
-            Assert.IsNotNull(headerLine = section.HeaderLine);
-            Assert.AreEqual(10, headerLine.LineNumber);
-            Assert.AreEqual("b", headerLine.Name);
+            Assert.AreEqual(2, section.Lines.Count);
 
             line = section.Lines[0];
+            Assert.AreEqual(10, line.LineNumber);
+            Assert.IsNotNull(headerLine = line as EditorConfigSectionHeaderLine);
+            Assert.AreEqual("b", headerLine.Name);
+
+            line = section.Lines[1];
             Assert.AreEqual(11, line.LineNumber);
             Assert.IsNotNull(declarationLine = line as EditorConfigDeclarationLine);
             Assert.AreEqual("key_b1", declarationLine.Key);
