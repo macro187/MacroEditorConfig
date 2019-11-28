@@ -41,6 +41,7 @@ namespace MacroEditorConfig
 
         public IReadOnlyList<string> Lines { get; }
         public IReadOnlyList<EditorConfigSection> Sections { get; private set; }
+        public IReadOnlyList<EditorConfigLine> EditorConfigLines { get; private set; }
         public EditorConfigSection Preamble => Sections.Single(s => s.IsPreamble);
 
 
@@ -72,6 +73,7 @@ namespace MacroEditorConfig
         void Parse()
         {
             Sections = EditorConfigReader.Read(Lines).ToList();
+            EditorConfigLines = Sections.SelectMany(s => s.Lines).ToList();
         }
 
     }
