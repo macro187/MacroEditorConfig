@@ -7,17 +7,17 @@ namespace MacroEditorConfig
     public static class EditorConfigReader
     {
 
-        public static IEnumerable<EditorConfigSection> Read(IEnumerable<string> lines)
+        public static IEnumerable<EditorConfigSection> Read(IEnumerable<string> linesOfText)
         {
-            Guard.NotNull(lines, nameof(lines));
-            return ReadImpl(lines);
+            Guard.NotNull(linesOfText, nameof(linesOfText));
+            return ReadImpl(linesOfText);
         }
 
 
-        static IEnumerable<EditorConfigSection> ReadImpl(IEnumerable<string> lines)
+        static IEnumerable<EditorConfigSection> ReadImpl(IEnumerable<string> linesOfText)
         {
             var currentLines = new List<EditorConfigLine>();
-            foreach (var line in ReadLines(lines))
+            foreach (var line in ReadLines(linesOfText))
             {
                 EditorConfigSectionHeaderLine nextHeader;
                 if (line == null)
@@ -44,18 +44,18 @@ namespace MacroEditorConfig
         }
 
 
-        static IEnumerable<EditorConfigLine> ReadLines(IEnumerable<string> lines)
+        static IEnumerable<EditorConfigLine> ReadLines(IEnumerable<string> linesOfText)
         {
             var lineNumber = 1;
-            foreach (var line in lines)
+            foreach (var lineOfText in linesOfText)
             {
                 yield return
-                    EditorConfigBlankLine.TryParse(lineNumber, line) ??
-                    EditorConfigCommentLine.TryParse(lineNumber, line) ??
-                    EditorConfigSectionHeaderLine.TryParse(lineNumber, line) ??
-                    EditorConfigDeclarationLine.TryParse(lineNumber, line) ??
+                    EditorConfigBlankLine.TryParse(lineNumber, lineOfText) ??
+                    EditorConfigCommentLine.TryParse(lineNumber, lineOfText) ??
+                    EditorConfigSectionHeaderLine.TryParse(lineNumber, lineOfText) ??
+                    EditorConfigDeclarationLine.TryParse(lineNumber, lineOfText) ??
                     (EditorConfigLine)null ??
-                    throw new TextFileParseException("Unrecognised line", lineNumber, line);
+                    throw new TextFileParseException("Unrecognised line", lineNumber, lineOfText);
 
                 lineNumber++;
             }

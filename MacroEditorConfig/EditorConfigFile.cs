@@ -9,9 +9,6 @@ namespace MacroEditorConfig
     public class EditorConfigFile
     {
 
-        readonly List<string> lines;
-
-
         /// <summary>
         /// Initialise a new empty editorconfig file
         /// </summary>
@@ -27,21 +24,19 @@ namespace MacroEditorConfig
         /// </summary>
         ///
         /// <exception cref="TextFileParseException">
-        /// The specified <paramref name="lines"/> of text were not in valid editorconfig format
+        /// The specified <paramref name="linesOfText"/> of text were not in valid editorconfig format
         /// </exception>
         ///
-        public EditorConfigFile(IEnumerable<string> lines)
+        public EditorConfigFile(IEnumerable<string> linesOfText)
         {
-            Guard.NotNull(lines, nameof(lines));
-            this.lines = lines.ToList();
-            Lines = this.lines;
-            Parse();
+            Guard.NotNull(linesOfText, nameof(linesOfText));
+            Parse(linesOfText);
         }
 
 
-        public IReadOnlyList<string> Lines { get; }
         public IReadOnlyList<EditorConfigSection> Sections { get; private set; }
-        public IReadOnlyList<EditorConfigLine> EditorConfigLines { get; private set; }
+        public IReadOnlyList<EditorConfigLine> Lines { get; private set; }
+        public IEnumerable<string> LinesOfText => Lines.Select(line => line.Text);
         public EditorConfigSection Preamble => Sections.Single(s => s.IsPreamble);
 
 
@@ -58,22 +53,23 @@ namespace MacroEditorConfig
         /// </remarks>
         ///
         /// <exception cref="TextFileParseException">
-        /// After <paramref name="editAction"/> was performed, the <paramref name="lines"/> of text were no longer in
-        /// valid editorconfig format
+        /// After <paramref name="editAction"/> was performed, the lines of text were no longer in valid editorconfig
+        /// format
         /// </exception>
         ///
         public void Edit(Action<IList<string>> editAction)
         {
             Guard.NotNull(editAction, nameof(editAction));
-            editAction(lines);
-            Parse();
+            var linesOfText = LinesOfText.ToList();
+            editAction(linesOfText);
+            Parse(linesOfText);
         }
 
 
-        void Parse()
+        void Parse(IEnumerable<string> linesOfText)
         {
-            Sections = EditorConfigReader.Read(Lines).ToList();
-            EditorConfigLines = Sections.SelectMany(s => s.Lines).ToList();
+            Sections = EditorConfigReader.Read(linesOfText).ToList();
+            Lines = Sections.SelectMany(s => s.Lines).ToList();
         }
 
     }
